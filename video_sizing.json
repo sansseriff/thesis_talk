@@ -1,0 +1,17 @@
+{
+    "default": {
+        "width": 0.3,
+        "top": 0.3,
+        "left": 0.5
+    },
+    "protocols": {
+        "width": 0.92,
+        "top": 0.285,
+        "left": 0.03
+    },
+    "protocols_high_loss": {
+        "width": 0.92,
+        "top": 0.285,
+        "left": 0.03
+    }
+}

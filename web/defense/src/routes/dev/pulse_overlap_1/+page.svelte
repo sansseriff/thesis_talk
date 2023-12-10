@@ -2,7 +2,7 @@
   // import svelteLogo from "./assets/svelte.svg";
   // import viteLogo from "/vite.svg";
   // import Counter from "./lib/Counter.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { randomNormal } from "d3-random";
   import { diff, re, round } from "mathjs";
   import { tweened } from "svelte/motion";
@@ -10,13 +10,71 @@
   import { tick } from "svelte";
   import { browser } from "$app/environment";
 
+  import { goto } from '$app/navigation';
+
+  export let prev_slide = "none"
+  export let next_slide = "none"
+  let keydownHandler: (event: KeyboardEvent) => void;
+
+  
+
+  const dynamic_navigate = {
+    async pulse_1_in() {
+      // bring in the first pulse
+      slider_value_1.set(300);
+    },
+    async pulse_1_left() {
+      // move the first pulse to the left
+      slider_value_1.set(200);
+    },
+    async pulse_1_right() {
+      // move the first pulse to the right
+      slider_value_1.set(400);
+    },
+    async pulse_2_in() {
+      // bring in the second pulse
+    },
+    async pulse_2_left() {
+      // move the second pulse to the left
+    },
+    async pulse_2_right() {
+      // move the second pulse to the right
+    },
+    action_state: 0,
+    get actions() {
+      return [prev_slide, this.pulse_1_in, this.pulse_1_left, this.pulse_1_right, this.pulse_2_in, this.pulse_2_left, this.pulse_2_right, next_slide];
+    },
+    left: async function() {
+      this.action_state += 1
+      let action = this.actions[this.action_state]
+      // check if action is a string or a function
+      if (typeof action === "string") {
+        await goto(action);
+      } else {
+        await action();
+      }
+    },
+    right: async function() {
+      this.action_state -= 1
+      let action = this.actions[this.action_state]
+      // check if action is a string or a function
+      if (typeof action === "string") {
+        await goto(action);
+      } else {
+        await action();
+      }
+    }
+    
+  }
+
+
   const slider_value_1 = tweened(0, {
-    duration: 2000,
+    duration: 1000,
     easing: cubicOut,
   });
 
   const slider_value_2 = tweened(0, {
-    duration: 2000,
+    duration: 1000,
     easing: cubicOut,
   });
 
@@ -98,6 +156,32 @@
   async function setup() {
     const jsonData = await loadJsonData("/peacoq_pulse_extended.json");
     make_graph(jsonData);
+
+
+    keydownHandler = async function(event) {
+      // Define an async function
+      const navigate = async (url: string, imgSrc: string) => {
+        const img = new Image();
+        img.src = imgSrc;
+        img.onload = async () => {
+          await goto(url);
+        };
+      }
+      //Check if the pressed key is the left arrow key
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        // Navigate to the desired URL when the left arrow key is pressed
+        // navigate('/slide_2', '/slides_png/slide_2.png');
+        dynamic_navigate.left()
+      }
+      //Check if the pressed key is the right arrow key
+      else if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        // Navigate to the desired URL when the right arrow key is pressed
+        // navigate('/slide_4', '/slides_png/slide_4.png');
+        dynamic_navigate.right()
+      }
+    };
+
+    document.addEventListener('keydown', keydownHandler);
   }
 
   // onMount(async () => {
@@ -332,12 +416,12 @@
       await setup();
     });
   }
-  // setup()
-  // slider_value_1.set(500)
-  // slider_value_2.set(500)
 
-  // slider_value_1.set(1000)
-  // slider_value_2.set(1500)
+  onDestroy(() => {
+    if (typeof window !== 'undefined') {
+      document.removeEventListener('keydown', keydownHandler);
+    }
+  });
 </script>
 
 <div class="container">

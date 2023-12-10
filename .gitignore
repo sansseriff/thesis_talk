@@ -13,6 +13,8 @@ web/defense/static/slides_png/*.png
 
 !web/defense/src/routes/.gitkeep
 
+old/*
+
 # !powerpoint/defense.pptx
 
 

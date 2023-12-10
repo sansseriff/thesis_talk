@@ -57,6 +57,62 @@ def next_slide(number, ln):
 #   }});
 # </script>
 
+def snake_to_camel(snake_str):
+    components = snake_str.split('_')
+    return ''.join(x.title() for x in components)
+
+
+def create_overlay_interactive_svelte_route(i, ln, routes_directory, component_file_name):
+    # I should add a checker here that looks in the route directory
+    # if its there and does not overwrite it if theres some keyfile 
+    # indicating dynamic content
+
+    folder_name = f"slide_{i}"
+    folder_path = os.path.join(routes_directory, folder_name)
+    os.makedirs(folder_path, exist_ok=True)
+
+
+    component_name = snake_to_camel(component_file_name)
+
+    # Create a text file in the folder
+    svelte_path = os.path.join(folder_path, "+page.svelte")
+    with open(svelte_path, "w") as f:
+        f.write(
+            f"""
+<script lang='ts'>
+  import {{ onMount, onDestroy }} from 'svelte';
+  import {{ writable }} from 'svelte/store';
+  import {{ goto }} from '$app/navigation';
+  import {component_name} from '$lib/{component_file_name}.svelte';
+
+  const width = writable(0);
+  const height = writable(0);
+  onMount(() => {{
+    width.set(window.innerWidth);
+    height.set(window.innerHeight);
+  }});
+</script>
+
+<div id="floating-number">{i}</div>
+<{component_name} prev_slide='/slide_{prev_slide(i)}' next_slide='/slide_{next_slide(i, ln)}'/>
+<img src="/slides_png/slide_{i}.png" alt="slide_{i}" width="{{$width}}" style="top: 0px; position: absolute; z-index: -1;">
+              
+"""
+        )
+
+    js_path = os.path.join(folder_path, "+page.js")
+    with open(js_path, "w") as f:
+        f.write(
+            """
+// since there's no dynamic data here, we can prerender
+// it so that it gets served as a static asset in production
+export const prerender = true;
+"""
+        )
+        # end
+
+
+
 def create_overlay_video_svelte_route(i, ln, routes_directory, video_name):
     # I should add a checker here that looks in the route directory
     # if its there and does not overwrite it if theres some keyfile 
@@ -142,6 +198,7 @@ def create_overlay_video_svelte_route(i, ln, routes_directory, video_name):
   }});
 </script>
 
+<div id="floating-number">{i}</div>
 <video id="myVideo" style="position:absolute; top:{{$video_top}}px; left:{{$video_left}}px; width:{{$video_width}}px;" src="/slides_videos/{video_name}.mp4" muted playsinline></video>
 <img src="/slides_png/slide_{i}.png" alt="slide_{i}" width="{{$width}}">
 
@@ -224,7 +281,7 @@ def create_svelte_route(i, ln, routes_directory):
   }});
 </script>
 
-
+<div id="floating-number">{i}</div>
 <img src="/slides_png/slide_{i}.png" alt="slide_{i}" width="{{$width}}">
               
 """
@@ -240,6 +297,109 @@ export const prerender = true;
 """
         )
         # end
+
+
+
+def create_backup_supporting_svelte_route(i, ln, routes_directory, b):
+    # I should add a checker here that looks in the route directory
+    # if its there and does not overwrite it if theres some keyfile 
+    # indicating dynamic content
+    if b == 0:
+        folder_name = f"slide_{i}"
+    else:
+        folder_name = f"slide_{i}_backup_{b}"
+
+    print("folder_name: ", folder_name)
+    folder_path = os.path.join(routes_directory, folder_name)
+    os.makedirs(folder_path, exist_ok=True)
+
+    # Create a text file in the folder
+    svelte_path = os.path.join(folder_path, "+page.svelte")
+    with open(svelte_path, "w") as f:
+        f.write(
+            f"""
+<script lang='ts'>
+  import {{ onMount, onDestroy }} from 'svelte';
+  import {{ writable }} from 'svelte/store';
+  import {{ goto }} from '$app/navigation';
+
+  const width = writable(0);
+  const height = writable(0);
+
+  let keydownHandler: (event: KeyboardEvent) => void;
+
+  onMount(() => {{
+    width.set(window.innerWidth);
+    height.set(window.innerHeight);
+
+    keydownHandler = async function(event) {{
+      // Define an async function
+      const navigate = async (url: string, imgSrc: string) => {{
+        const img = new Image();
+        img.src = imgSrc;
+        img.onload = async () => {{
+          await goto(url);
+        }};
+      }}
+      //Check if the pressed key is the left arrow key
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {{
+        // Navigate to the desired URL when the left arrow key is pressed
+        navigate('/slide_{prev_slide(i)}', '/slides_png/slide_{prev_slide(i)}.png');
+      }}
+      //Check if the pressed key is the right arrow key
+      else if (event.key === 'ArrowRight' || event.key === 'PageDown') {{
+        // Navigate to the desired URL when the right arrow key is pressed
+        navigate('/slide_{next_slide(i, ln)}', '/slides_png/slide_{next_slide(i, ln)}.png');
+      }}
+""")
+    # handle the backup
+    with open(svelte_path, "a") as f:
+        f.write(
+            f"""
+      else if (event.key === '.') {{
+        // Navigate to the backup slide
+        navigate('/slide_{i}_backup_{b+1}', '/slides_png/slide_{i}_backup_{b+1}.png');
+      }}
+    }};
+""")
+        
+    if b == 0:
+        q = i
+    else:
+        q = f"{i}_backup_{b}"
+
+    with open(svelte_path, "a") as f:
+          f.write(f"""
+
+
+    document.addEventListener('keydown', keydownHandler);
+  }});
+
+  onDestroy(() => {{
+    if (typeof window !== 'undefined') {{
+      document.removeEventListener('keydown', keydownHandler);
+    }}
+  }});
+</script>
+
+<div id="floating-number">{i}</div>
+<img src="/slides_png/slide_{q}.png" alt="slide_{q}" width="{{$width}}">
+              
+"""
+        )
+
+    js_path = os.path.join(folder_path, "+page.js")
+    with open(js_path, "w") as f:
+        f.write(
+            """
+// since there's no dynamic data here, we can prerender
+// it so that it gets served as a static asset in production
+export const prerender = true;
+"""
+        )
+        # end
+
+
 
 
 file_export = "./powerpoint/defense_export.pptx"
@@ -279,26 +439,61 @@ def finish_up(run_copy_flag=True):
     Application = client.Dispatch("PowerPoint.Application")
     Presentation = Application.Presentations.Open(full_file_path)
 
-
+    j = 0
+    backup_counter = 0
     # Loop through the range of folder numbers and create each folder
     for i, (note_slide, img_slide) in enumerate(zip(ppt.slides, Presentation.Slides)):
         textNote = note_slide.notes_slide.notes_text_frame.text
         notes.append((i, textNote))
 
-        if "[dynamic]" not in textNote:
-            img_slide.Export(f"{full_export_path}\\slide_{i}.png", "PNG")
+        if "[interactive][overlay]" in textNote:
+            img_slide.Export(f"{full_export_path}\\slide_{j}.png", "PNG")
+            split_string = textNote.split("[interactive][overlay]", 1)
+            component_file_name = split_string[1].replace("[", "").replace("]", "")
+            component_file_name = component_file_name.split("#", 1)[0]
+            print("found interactive slide for filename: ", component_file_name)
+            create_overlay_interactive_svelte_route(j, len(ppt.slides), routes_directory, component_file_name)
+            j += 1
+            continue
 
-            create_svelte_route(i, len(ppt.slides), routes_directory)
+        if "[dynamic][overlay]" in textNote:
+            img_slide.Export(f"{full_export_path}\\slide_{j}.png", "PNG")
 
-        else:
-            if "[dynamic][overlay]" in textNote:
-                img_slide.Export(f"{full_export_path}\\slide_{i}.png", "PNG")
+            split_string = textNote.split("[dynamic][overlay]", 1)
+            video_name = split_string[1].replace("[", "").replace("]", "")
+            video_name = video_name.split("#", 1)[0]
+            print("found dynamic slide for: ", video_name)
+            create_overlay_video_svelte_route(j, len(ppt.slides), routes_directory, video_name)
+            j += 1
+            continue
 
-                split_string = textNote.split("[dynamic][overlay]", 1)
-                video_name = split_string[1].replace("[", "").replace("]", "")
-                video_name = video_name.split("#", 1)[0]
-                print("found dynamic slide for: ", video_name)
-                create_overlay_video_svelte_route(i, len(ppt.slides), routes_directory, video_name)
+        if ("[backup_root]" in textNote) or ("[backup]" in textNote):
+            # handle slide that supports backup
+            print("found backup slide, i=", i, "j=", j)
+            if backup_counter == 0:
+              img_slide.Export(f"{full_export_path}\\slide_{j}.png", "PNG")
+            else:
+              img_slide.Export(f"{full_export_path}\\slide_{j}_backup_{backup_counter}.png", "PNG")
+            create_backup_supporting_svelte_route(j, len(ppt.slides), routes_directory, backup_counter)
+            # if backup_counter == 0:
+            #     j += 1
+            backup_counter += 1
+            continue
+            
+        # don't overwrite the slide that supports backup
+        if backup_counter > 0:
+            j += 1
+        backup_counter = 0
+          
+        # handle normal slide
+        # if "[dynamic]" not in textNote:
+        img_slide.Export(f"{full_export_path}\\slide_{j}.png", "PNG")
+        
+        create_svelte_route(j, len(ppt.slides), routes_directory)
+        j += 1
+
+        
+        
 
               
 

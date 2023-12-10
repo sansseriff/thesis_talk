@@ -32,7 +32,14 @@
         // Navigate to the desired URL when the right arrow key is pressed
         navigate('/slide_126', '/slides_png/slide_126.png');
       }
+
+      else if (event.key === '.') {
+        // Navigate to the backup slide
+        navigate('/slide_125_backup_1', '/slides_png/slide_125_backup_1.png');
+      }
     };
+
+
 
     document.addEventListener('keydown', keydownHandler);
   });
@@ -44,6 +51,6 @@
   });
 </script>
 
-
+<div id="floating-number">125</div>
 <img src="/slides_png/slide_125.png" alt="slide_125" width="{$width}">
               

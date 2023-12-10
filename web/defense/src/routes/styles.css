@@ -105,3 +105,13 @@ button:focus:not(:focus-visible) {
 	width: 1px;
 	white-space: nowrap;
 }
+
+
+#floating-number {
+	position: fixed;
+	right: 2%;
+	top: 2%;
+	z-index: 9999;
+	font-size: 2.8rem; /* adjust as needed */
+	opacity: 0.5;
+  }

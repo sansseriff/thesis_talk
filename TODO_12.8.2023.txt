@@ -1,0 +1,35 @@
+background and outtro for each section DONE
+
+
+DCRmin
+	- background/papers 
+	- quicky
+	- outro
+
+Jitterate
+	- quicky
+	- reference pilup papers
+	- ????? outro
+
+High Rate
+	- quicky
+	- refernce slide added
+	- outro
+
+PPM
+	- quicky
+	- reference prn papers, and PPM papers
+	- outro
+
+
+Give examples of applications that use particular wavelengths. NOT DONE
+
+then work on the entanglement source animation
+
+then work on the jitterate animation/image sequence
+
+add extra details for highrate, backup slides
+
+get the dynamic slide working for peacoq
+
+get the dynamic slide for PPM working

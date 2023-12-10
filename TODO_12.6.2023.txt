@@ -1,0 +1,69 @@
+todo
+
+1. PPM PNR
+	a. DONE motivation - we would like to show 10x faster DSOC DONE
+	b. DONE say the goal is to send some data - show the image
+	c. DONE we discovered pnr effects
+	d. DONE backtrack and give PNR state of the art - 
+		i. DONE slew rate carries pnr information
+		ii. !important this is for photons that arrive within a short time of one another
+		ii. these detectors exibit PNR information in height and slew rate
+		iii. these two papers have demonstrated pnr resolution with fancier time tagger and no awareness of arrival time
+	e. slope identifies PNR degree of freedom, slope also changes arrival time. because trigger. 
+	f. To get good arrival time measurements, you need to descriminate pulse slope and therefore PNR resolution in some way. 
+	g. we do that by splitting the pulse and trigger on it at two levels. We lose amplitude by doing that and therefore suffer a amplifier jitter penalty though. 
+	h. show the pnr effect and the trigger levels
+	i. we build up these sorts of scatter plots. Here they are as 2d histograms. 
+	j. Here's where I'm at. THe source is pulsed at 10 or 20 GHz. We usually think of measuring snspd arrival time and then putting that event in some bin if it's within some boundary. I did that for the high rate project. If a measurment is bewteen 80 and 160 after the clock, it's in the center bin. 
+	k. Here, instead, in 2 dimensions, there's no concept of a bin. So, think of it more like a classification problem. This is how the detector responds if the multi-photon pulse arrives in i+1 time slot. THIS (you should show a another grouping) is how it responds for a pulse arriving in the i+1 time slot. Translated up and right by 50 ps. Assuming 20 GHz clock. And you can keep doing this for all time slots in the PPM scheme. 
+	l. so attribution of arrival time becomes attribution of a 2d point into one of multiple distributions. 
+	m. you need a model for the distributions. I opt for something called a gaussian mixture model. It's basically a sum of multivariate gaussians represented by these ellipses that fits the data well. Notice how any one photon number grouping can be represented by 1 or more gaussians. I'll touch on the ramifications of that in a moment. 
+	n. so the process for arrival time attribution becomes for a given 2d point, a given SNSPD multi-trigger measurement, find whichever distribution is most probable. 
+	o. Okay. This is a lot of complexity if you only want to measure arrival time. Which ironically, is all we really set out to do. But other applications, quantum applications, really make this worth it if they need to know arrival time, but also photon number at high clock rate. 
+	p. To resolve photon number, bifurcate the model into a series of gaussian groups that each represent a number of photon detections. (Doing this is not entirely trivial it involves representing the gaussians as an undirected graph and dividing that graph into communities based on a gaussian similarity metric called jensen shannon divergence.) Then, take the same steps as before. A 2d point has a probability of beloing to multiple photon number groups or arrival times. 
+	q. with that capabilty, we can resolve photon statistics from the PPM dataset. Based on the mean photon number, there's a probabilty for |1>, |2>, |3> et. cetera photon detections. Those probabilities can be modeled by poisson statistics because this is laser light. There you have it, fairly accurate photon number and arrival time attribution on a 20 GHz clock. 
+	r. outlook. So we kind of went beyond our inital goals here. But ther result is very interesting and has applications in various heralding schemes or other high rate quantum expirements for example those that study non-gaussian states of light. 
+
+
+2. jitterate explanation
+3. highrate jitter explaintion (if time??)
+4. make snspd operation slides seem more fancy
+
+
+you can do near perfect arrival time and photon number attribution on a 15 GHz clock. 
+
+conslusions for each section... 
+
+DCRmin: 1. gquest, lunar laser comm
+
+Jitterate: peacoq, 
+
+Highrate: 
+
+PPM: pnr 
+
+single path entanglement systems -> figure out what that is... single photon heterodyne detection or something...
+
+general entanglement protocol. requires two fibers. 
+
+people havent' been doing QKD with this yet, but the pNR detectors haven't been ready. 
+
+https://journals.aps.org/pra/abstract/10.1103/PhysRevA.76.050301
+did I make this figure correctly?
+
+
+
+
+
+
+
+
+
+
+
+this brings us to the low dark count rate demonstration
+
+If we were able to demonstrate good DCR with the single pixel, then DSOC could go ahead with using a cryo-lens
+
+If our resutls are good, it acctually makes for a sizable improvement for QKD and other quantum network applications
+

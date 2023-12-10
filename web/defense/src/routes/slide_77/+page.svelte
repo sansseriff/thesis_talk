@@ -1,6 +1,6 @@
 
 <script lang='ts'>
-  // protocols
+  // protocols_high_loss
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   import { goto } from '$app/navigation';
@@ -56,7 +56,8 @@
   });
 </script>
 
-<video id="myVideo" style="position:absolute; top:{$video_top}px; left:{$video_left}px; width:{$video_width}px;" src="/slides_videos/protocols.mp4" muted playsinline></video>
+<div id="floating-number">77</div>
+<video id="myVideo" style="position:absolute; top:{$video_top}px; left:{$video_left}px; width:{$video_width}px;" src="/slides_videos/protocols_high_loss.mp4" muted playsinline></video>
 <img src="/slides_png/slide_77.png" alt="slide_77" width="{$width}">
 
               

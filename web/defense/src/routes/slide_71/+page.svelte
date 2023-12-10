@@ -44,6 +44,6 @@
   });
 </script>
 
-
+<div id="floating-number">71</div>
 <img src="/slides_png/slide_71.png" alt="slide_71" width="{$width}">
               

@@ -56,6 +56,7 @@
   });
 </script>
 
+<div id="floating-number">78</div>
 <video id="myVideo" style="position:absolute; top:{$video_top}px; left:{$video_left}px; width:{$video_width}px;" src="/slides_videos/protocols_high_loss.mp4" muted playsinline></video>
 <img src="/slides_png/slide_78.png" alt="slide_78" width="{$width}">
 
